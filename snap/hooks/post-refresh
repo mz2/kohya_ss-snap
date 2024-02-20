@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+if [ -L $SNAP_COMMON/venv ]; then
+    rm -f $SNAP_COMMON/venv
+fi
+
+if [ -L $SNAP_COMMON/setup ]; then
+    rm -f $SNAP_COMMON/setup
+fi
+
+ln -sf $SNAP/venv $SNAP_COMMON/venv
+ln -sf $SNAP/setup $SNAP_COMMON/setup
+
+cp -f $SNAP/gui.sh $SNAP_COMMON/gui.sh
+ln -sf $SNAP/requirements.txt $SNAP_COMMON
+ln -sf $SNAP/requirements_linux.txt $SNAP_COMMON
+ln -sf $SNAP/kohya_gui.py $SNAP_COMMON

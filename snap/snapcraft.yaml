@@ -1,0 +1,84 @@
+name: kohya-ss
+base: core22
+version: '0.1'
+summary: Web UI to Kohya's sd-scripts
+description: |
+  Gradio GUI for Kohya's Stable Diffusion trainers.
+  The GUI allows you to set the training parameters and generate and run the required CLI commands to train the model.
+
+grade: stable
+confinement: strict
+
+package-repositories:
+  - type: apt
+    formats: [deb]
+    path: /
+    key-id: EB693B3035CD5710E231E123A4B469963BF863CC
+    url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64
+
+apps:
+  kohya-ss:
+    command: run.sh
+    environment:
+      PYTHONPATH: $SNAP/lib/python3.10:$SNAP/usr/lib/python3.10:$SNAP/lib/python3.10/site-packages:$SNAP_COMMON/venv/lib/python3.10/site-packages:$PYTHONPATH
+      PATH: $SNAP/bin:$SNAP_COMMON/venv/bin:$PATH
+      VIRTUAL_ENV: $SNAP_COMMON/venv
+      TCL_LIBRARY: $SNAP/usr/share/tcltk/tcl8.6:$TCL_LIBRARY:$TK_LIBRARY
+      TK_LIBRARY: $SNAP/usr/share/tcltk/tk8.6:$TK_LIBRARY:$TCL_LIBRARY
+    extensions: [gnome] # for tcl/tk
+    plugs:
+      - home
+      - removable-media
+      - network
+      - network-bind
+      - opengl
+
+parts:
+  launcher:
+    plugin: dump
+    source: ./snap/local
+  webapp:
+    plugin: python
+    source: https://github.com/bmaltais/kohya_ss.git
+    source-type: git
+    build-packages:
+      - git
+      - python3.10-venv
+      - python3-pip
+      - python3-tk
+      - libcudnn8-dev
+      - tensorrt-dev
+      - libcublas-dev-11-8
+      - cuda-cudart-dev-11-8
+      - cuda-driver-dev-11-8
+      - cuda-toolkit-11-8
+    stage-packages:
+      - python3.10
+      - python3-tk
+      - libcudnn8
+      - libcublas-11-8
+      - tensorrt-libs
+    override-build: |
+      apt install -y python3-tk # for some reason above installation not sufficient?
+      craftctl default
+      chmod ugo+x ./setup.sh
+      cp gui.sh $CRAFT_PART_INSTALL
+      ./setup.sh
+
+      cp -r config_files $CRAFT_PART_INSTALL
+      cp -r finetune $CRAFT_PART_INSTALL
+      cp -r js $CRAFT_PART_INSTALL
+      cp -r library $CRAFT_PART_INSTALL
+      cp -r localizations $CRAFT_PART_INSTALL
+      cp -r networks $CRAFT_PART_INSTALL
+      cp -r presets $CRAFT_PART_INSTALL
+      cp -r setup $CRAFT_PART_INSTALL
+      cp -r tools $CRAFT_PART_INSTALL
+      cp -r v2_inference $CRAFT_PART_INSTALL
+      cp -r venv $CRAFT_PART_INSTALL
+      cp -r requirements.txt $CRAFT_PART_INSTALL
+      cp -r requirements_linux.txt $CRAFT_PART_INSTALL
+      cp *.py $CRAFT_PART_INSTALL
+      sed -i "s|home = .*|home = $SNAP_COMMON/venv|" $CRAFT_PART_INSTALL/venv/pyvenv.cfg
+      sed -i "s|VIRTUAL_ENV=.*|VIRTUAL_ENV=$SNAP_COMMON/venv|" $CRAFT_PART_INSTALL/venv/bin/activate
+      sed -i "s|VIRTUAL_ENV=.*|VIRTUAL_ENV=$SNAP_COMMON/venv|" $CRAFT_PART_INSTALL/bin/activate
