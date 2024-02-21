@@ -9,10 +9,58 @@ if [ -L $SNAP_COMMON/setup ]; then
     rm -f $SNAP_COMMON/setup
 fi
 
+if [ -L $SNAP_COMMON/localizations ]; then
+    rm -f $SNAP_COMMON/localizations
+fi
+
+if [ -L $SNAP_COMMON/config_files ]; then
+    rm -f $SNAP_COMMON/config_files
+fi
+
+if [ -L $SNAP_COMMON/finetune ]; then
+    rm -f $SNAP_COMMON/finetune
+fi
+
+if [ -L $SNAP_COMMON/js ]; then
+    rm -f $SNAP_COMMON/js
+fi
+
+if [ -L $SNAP_COMMON/library ]; then
+    rm -f $SNAP_COMMON/library
+fi
+
+if [ -L $SNAP_COMMON/networks ]; then
+    rm -f $SNAP_COMMON/networks
+fi
+
+if [ -L $SNAP_COMMON/presets ]; then
+    rm -f $SNAP_COMMON/presets
+fi
+
+if [ -L $SNAP_COMMON/tools ]; then
+    rm -f $SNAP_COMMON/tools
+fi
+
+if [ -L $SNAP_COMMON/docs ]; then
+    rm -f $SNAP_COMMON/docs
+fi
+
 ln -sf $SNAP/venv $SNAP_COMMON/venv
 ln -sf $SNAP/setup $SNAP_COMMON/setup
+ln -sf $SNAP/localizations $SNAP_COMMON/localizations
+ln -sf $SNAP/config_files $SNAP_COMMON/config_files
+ln -sf $SNAP/finetune $SNAP_COMMON/finetune
+ln -sf $SNAP/js $SNAP_COMMON/js
+ln -sf $SNAP/library $SNAP_COMMON/library
+ln -sf $SNAP/networks $SNAP_COMMON/networks
+ln -sf $SNAP/presets $SNAP_COMMON/presets
+ln -sf $SNAP/tools $SNAP_COMMON/tools
+ln -sf $SNAP/docs $SNAP_COMMON/docs
 
 cp -f $SNAP/gui.sh $SNAP_COMMON/gui.sh
 ln -sf $SNAP/requirements.txt $SNAP_COMMON
 ln -sf $SNAP/requirements_linux.txt $SNAP_COMMON
 ln -sf $SNAP/kohya_gui.py $SNAP_COMMON
+ln -sf $SNAP/release $SNAP_COMMON/.release
+ln -sf $SNAP/style.css $SNAP_COMMON
+ln -sf $SNAP/README.md $SNAP_COMMON

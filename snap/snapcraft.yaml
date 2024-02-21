@@ -1,6 +1,7 @@
 name: kohya-ss
 base: core22
 version: '0.1'
+adopt-info: webapp
 summary: Web UI to Kohya's sd-scripts
 description: |
   Gradio GUI for Kohya's Stable Diffusion trainers.
@@ -18,20 +19,24 @@ package-repositories:
 
 apps:
   kohya-ss:
-    command: run.sh
+    daemon: simple
+    install-mode: enable
+    restart-condition: on-failure
+    command: run.sh --listen 0.0.0.0 --share --server_port 7860
     environment:
-      PYTHONPATH: $SNAP/lib/python3.10:$SNAP/usr/lib/python3.10:$SNAP/lib/python3.10/site-packages:$SNAP_COMMON/venv/lib/python3.10/site-packages:$PYTHONPATH
+      PYTHONPATH: $SNAP/lib/python3.10:$SNAP/usr/lib/python3.10:$SNAP/lib/python3.10/site-packages:$SNAP_COMMON/venv/lib/python3.10/site-packages:$SNAP/usr/lib/python3.10/lib-dynload:$PYTHONPATH
       PATH: $SNAP/bin:$SNAP_COMMON/venv/bin:$PATH
       VIRTUAL_ENV: $SNAP_COMMON/venv
-      TCL_LIBRARY: $SNAP/usr/share/tcltk/tcl8.6:$TCL_LIBRARY:$TK_LIBRARY
-      TK_LIBRARY: $SNAP/usr/share/tcltk/tk8.6:$TK_LIBRARY:$TCL_LIBRARY
-    extensions: [gnome] # for tcl/tk
+      LD_LIBRARY_PATH: $SNAP/usr/lib/x86_64-linux-gnu:$SNAP/venv/lib/python3.10/site-packages/torch/lib:$SNAP/usr/local/cuda-11.8/targets/x86_64-linux/lib:$SNAP/usr/lib:$SNAP/venv/lib/python3.10/site-packages/tensorrt:$SNAP/venv/lib/python3.10/site-packages/nvidia/cuda_runtime/lib:$LD_LIBRARY_PATH
     plugs:
       - home
       - removable-media
       - network
       - network-bind
       - opengl
+      - x11
+      - wayland
+      - desktop
 
 parts:
   launcher:
@@ -58,6 +63,13 @@ parts:
       - libcudnn8
       - libcublas-11-8
       - tensorrt-libs
+    override-pull: |
+      craftctl default
+      last_committed_tag="$(git describe --tags --abbrev=0)"
+      last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
+      version="$(git describe --tags | sed 's/v//')"
+      echo "$version" > release
+      craftctl set version=$version
     override-build: |
       apt install -y python3-tk # for some reason above installation not sufficient?
       craftctl default
@@ -75,10 +87,16 @@ parts:
       cp -r setup $CRAFT_PART_INSTALL
       cp -r tools $CRAFT_PART_INSTALL
       cp -r v2_inference $CRAFT_PART_INSTALL
+      cp -r docs $CRAFT_PART_INSTALL
       cp -r venv $CRAFT_PART_INSTALL
+      cp README.md $CRAFT_PART_INSTALL
+      cp *.css $CRAFT_PART_INSTALL
+
       cp -r requirements.txt $CRAFT_PART_INSTALL
       cp -r requirements_linux.txt $CRAFT_PART_INSTALL
+      cp release $CRAFT_PART_INSTALL
       cp *.py $CRAFT_PART_INSTALL
+
       sed -i "s|home = .*|home = $SNAP_COMMON/venv|" $CRAFT_PART_INSTALL/venv/pyvenv.cfg
       sed -i "s|VIRTUAL_ENV=.*|VIRTUAL_ENV=$SNAP_COMMON/venv|" $CRAFT_PART_INSTALL/venv/bin/activate
       sed -i "s|VIRTUAL_ENV=.*|VIRTUAL_ENV=$SNAP_COMMON/venv|" $CRAFT_PART_INSTALL/bin/activate
