@@ -22,7 +22,7 @@ apps:
     daemon: simple
     install-mode: enable
     restart-condition: on-failure
-    command: run.sh --listen 0.0.0.0 --share --server_port 7860
+    command: run.sh --listen 0.0.0.0 --share
     environment:
       PYTHONPATH: $SNAP/lib/python3.10:$SNAP/usr/lib/python3.10:$SNAP/lib/python3.10/site-packages:$SNAP_COMMON/venv/lib/python3.10/site-packages:$SNAP/usr/lib/python3.10/lib-dynload:$PYTHONPATH
       PATH: $SNAP/bin:$SNAP_COMMON/venv/bin:$PATH
